@@ -13,12 +13,12 @@ from threading import Thread
 # Initialize Flask and Flask-SocketIO
 app = Flask(__name__)
 
-# Enable CORS for the specific frontend domain
-# You can add more domains to the list if necessary
+
+# Allow CORS for specific frontend domain
 CORS(app, origins=["https://reading-school-giving-day-codeathon.onrender.com"], supports_credentials=True)
 
-socketio = SocketIO(app, cors_allowed_origins=["https://reading-school-giving-day-codeathon.onrender.com"], cookie=None)
-
+# Allow CORS for WebSocket connections
+socketio = SocketIO(app, cors_allowed_origins=["https://reading-school-giving-day-codeathon.onrender.com"])
 # Game Variables
 WIDTH, HEIGHT = 800, 600  # Canvas size
 FPS = 60  # Frames per second
