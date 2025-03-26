@@ -3,8 +3,6 @@ import os
 os.environ["SDL_AUDIODRIVER"] = "dummy"
 os.environ['XDG_RUNTIME_DIR'] ='/run/user/$(id -u)'
 
-
-import pygame
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS  # Importing CORS
@@ -30,7 +28,7 @@ circle_pos = [random.randint(50, WIDTH-50), random.randint(50, HEIGHT-50)]
 circle_radius = 30
 
 # Set up the Pygame environment (for handling game logic)
-pygame.init()
+# pygame.init()  # Uncomment this if you plan to use pygame, but this isn't needed for the current app setup.
 
 @app.route('/')
 def index():
@@ -100,3 +98,4 @@ if __name__ == '__main__':
     
     # Run the app with the correct host and port for Render
     socketio.run(app, host='0.0.0.0', port=port)
+
