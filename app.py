@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS  # Importing CORS
@@ -89,4 +90,8 @@ game_thread.daemon = True
 game_thread.start()
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5000)
+    # Get the port from the environment variable or use 5000 if not set
+    port = int(os.environ.get('PORT', 5000))
+    
+    # Run the app with the correct host and port for Render
+    socketio.run(app, host='0.0.0.0', port=port)
