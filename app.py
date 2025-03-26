@@ -1,7 +1,7 @@
 import os
 # Disable sound before initializing pygame
 os.environ["SDL_AUDIODRIVER"] = "dummy"
-os.environ['XDG_RUNTIME_DIR'] ='/run/user/$(id -u)'
+os.environ['XDG_RUNTIME_DIR'] = '/run/user/$(id -u)'
 
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
@@ -13,25 +13,27 @@ from threading import Thread
 # Initialize Flask and Flask-SocketIO
 app = Flask(__name__)
 
-# Enable CORS for the specific frontend domain (you can add more if needed)
+# Enable CORS for the specific frontend domain
+# You can add more domains to the list if necessary
 CORS(app, origins=["https://reading-school-giving-day-codeathon.onrender.com"], supports_credentials=True)
 
 socketio = SocketIO(app, cors_allowed_origins=["https://reading-school-giving-day-codeathon.onrender.com"], cookie=None)
 
 # Game Variables
-WIDTH, HEIGHT = 800, 600
-FPS = 60
+WIDTH, HEIGHT = 800, 600  # Canvas size
+FPS = 60  # Frames per second
 
 # Game 1 (Move the Square)
-square_pos = [WIDTH // 2, HEIGHT // 2]
-square_velocity = [0, 0]
+square_pos = [WIDTH // 2, HEIGHT // 2]  # Initial position of the square
+square_velocity = [0, 0]  # Initial movement velocity of the square
 
 # Game 2 (Click the Circle)
-circle_pos = [random.randint(50, WIDTH-50), random.randint(50, HEIGHT-50)]
-circle_radius = 30
+circle_pos = [random.randint(50, WIDTH - 50), random.randint(50, HEIGHT - 50)]  # Initial random position of the circle
+circle_radius = 30  # Radius of the clickable circle
 
 @app.route('/')
 def index():
+    # This route serves the main HTML page to the user
     return render_template('index.html')  # The HTML page to be served
 
 # WebSocket event for game state updates
@@ -48,13 +50,13 @@ def handle_disconnect():
 def move_square(direction):
     global square_pos, square_velocity
     if direction == "left":
-        square_velocity = [-5, 0]
+        square_velocity = [-5, 0]  # Move left
     elif direction == "right":
-        square_velocity = [5, 0]
+        square_velocity = [5, 0]  # Move right
     elif direction == "up":
-        square_velocity = [0, -5]
+        square_velocity = [0, -5]  # Move up
     elif direction == "down":
-        square_velocity = [0, 5]
+        square_velocity = [0, 5]  # Move down
 
 # Game 2: Click the Circle - Handle Mouse Click Events
 @socketio.on('click_circle')
@@ -68,12 +70,14 @@ def click_circle(mouse_pos):
 # Update Game Logic: Move Square and Send Updates to the Client
 def update_game_state():
     global square_pos, square_velocity, circle_pos
+
+    # Update square position based on velocity
     square_pos[0] += square_velocity[0]
     square_pos[1] += square_velocity[1]
 
-    # Keep the square within bounds
-    square_pos[0] = max(0, min(square_pos[0], WIDTH - 50))
-    square_pos[1] = max(0, min(square_pos[1], HEIGHT - 50))
+    # Keep the square within bounds (the canvas dimensions)
+    square_pos[0] = max(0, min(square_pos[0], WIDTH - 50))  # Horizontal bounds
+    square_pos[1] = max(0, min(square_pos[1], HEIGHT - 50))  # Vertical bounds
 
     # Emit game state to the client
     socketio.emit('game_state', {
@@ -84,8 +88,8 @@ def update_game_state():
 # Main loop that runs the game logic and sends updates every frame
 def game_loop():
     while True:
-        update_game_state()
-        time.sleep(1 / FPS)
+        update_game_state()  # Update game state
+        time.sleep(1 / FPS)  # Wait for the next frame (based on FPS)
 
 # Start the game loop in a separate thread
 game_thread = Thread(target=game_loop)
@@ -94,8 +98,7 @@ game_thread.start()
 
 if __name__ == '__main__':
     # Get the port from the environment variable or use 5000 if not set
-    port = int(os.environ.get('PORT', 5000))
+    port = int(os.environ.get('PORT'))
     
     # Run the app with the correct host and port for Render
-    socketio.run(app, host='0.0.0.0', port=port)
-
+    socketio.run(app, host='0.0.0.0', port=port)  # Use '0.0.0.0' for deployment on Render
