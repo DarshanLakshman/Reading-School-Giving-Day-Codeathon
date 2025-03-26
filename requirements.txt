@@ -2,3 +2,8 @@ Flask
 Gunicorn
 Pygame
 asyncio
+threading 
+time
+random
+flask_cors 
+flask_socketio 
