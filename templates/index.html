@@ -3,52 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pygame in Browser</title>
+    <title>Flask Game with Socket.IO</title>
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
     <style>
-        body { margin: 0; }
-        canvas { display: block; }
+        body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f0f0; }
+        canvas { background-color: #fff; border: 1px solid #000; }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
 </head>
 <body>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const socket = io.connect('http://localhost:5000');
 
-        // Track key press for moving the square
-        window.addEventListener('keydown', (event) => {
+    <script>
+        const socket = io.connect('https://your-app-name.onrender.com');  // Update this with your Render app's URL
+
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let squarePos = { x: 0, y: 0 };
+        let circlePos = { x: 0, y: 0 };
+        
+        // Game loop for drawing the square and circle
+        function drawGameState() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw the square
+            ctx.fillStyle = "blue";
+            ctx.fillRect(squarePos.x, squarePos.y, 50, 50);
+            
+            // Draw the circle
+            ctx.beginPath();
+            ctx.arc(circlePos.x, circlePos.y, 30, 0, Math.PI * 2);
+            ctx.fillStyle = "red";
+            ctx.fill();
+        }
+
+        // Listen for game state updates
+        socket.on('game_state', function(data) {
+            squarePos = data.square_pos;
+            circlePos = data.circle_pos;
+            drawGameState();
+        });
+
+        // Send movement events for the square
+        window.addEventListener('keydown', function(event) {
             if (event.key === 'ArrowLeft') {
                 socket.emit('move_square', 'left');
-            } else if (event.key === 'ArrowRight') {
+            }
+            else if (event.key === 'ArrowRight') {
                 socket.emit('move_square', 'right');
-            } else if (event.key === 'ArrowUp') {
+            }
+            else if (event.key === 'ArrowUp') {
                 socket.emit('move_square', 'up');
-            } else if (event.key === 'ArrowDown') {
+            }
+            else if (event.key === 'ArrowDown') {
                 socket.emit('move_square', 'down');
             }
         });
 
-        // Track mouse click for clicking the circle
-        canvas.addEventListener('click', (event) => {
-            const mousePos = { x: event.clientX, y: event.clientY };
+        // Handle click on the circle
+        canvas.addEventListener('click', function(event) {
+            const mousePos = { x: event.offsetX, y: event.offsetY };
             socket.emit('click_circle', mousePos);
-        });
-
-        // Listen for game state updates from the server
-        socket.on('game_state', (data) => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-
-            // Draw the square (Game 1)
-            ctx.fillStyle = 'red';
-            ctx.fillRect(data.square_pos[0], data.square_pos[1], 50, 50);
-
-            // Draw the circle (Game 2)
-            ctx.fillStyle = 'blue';
-            ctx.beginPath();
-            ctx.arc(data.circle_pos[0], data.circle_pos[1], 30, 0, Math.PI * 2);
-            ctx.fill();
         });
     </script>
 </body>
