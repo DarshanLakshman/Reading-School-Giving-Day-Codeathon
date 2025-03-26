@@ -1,6 +1,8 @@
 import os
 # Disable sound before initializing pygame
 os.environ["SDL_AUDIODRIVER"] = "dummy"
+os.environ['XDG_RUNTIME_DIR'] ='/run/user/$(id -u)'
+
 
 import pygame
 from flask import Flask, render_template
