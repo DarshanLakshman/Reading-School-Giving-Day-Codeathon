@@ -12,8 +12,11 @@ from threading import Thread
 
 # Initialize Flask and Flask-SocketIO
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes (or use specific routes as needed)
-socketio = SocketIO(app, cors_allowed_origins="*")  # Allow all origins for WebSocket connections
+
+# Enable CORS for the specific frontend domain (you can add more if needed)
+CORS(app, origins=["https://reading-school-giving-day-codeathon.onrender.com"], supports_credentials=True)
+
+socketio = SocketIO(app, cors_allowed_origins=["https://reading-school-giving-day-codeathon.onrender.com"], cookie=None)
 
 # Game Variables
 WIDTH, HEIGHT = 800, 600
@@ -26,9 +29,6 @@ square_velocity = [0, 0]
 # Game 2 (Click the Circle)
 circle_pos = [random.randint(50, WIDTH-50), random.randint(50, HEIGHT-50)]
 circle_radius = 30
-
-# Set up the Pygame environment (for handling game logic)
-# pygame.init()  # Uncomment this if you plan to use pygame, but this isn't needed for the current app setup.
 
 @app.route('/')
 def index():
